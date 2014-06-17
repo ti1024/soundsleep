@@ -11,11 +11,9 @@
 
     <LinearLayout
         android:id="@+id/rule_enabled_row"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/Setting"
         android:orientation="horizontal"
-        android:clickable="true"
-        android:background="?android:attr/selectableItemBackground">
+        android:clickable="true">
         <TextView
             android:text="@string/rule_enabled"
             android:layout_width="0dp"
@@ -31,11 +29,9 @@
 
     <LinearLayout
         android:id="@+id/start_time_row"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/Setting"
         android:orientation="vertical"
-        android:clickable="true"
-        android:background="?android:attr/selectableItemBackground">
+        android:clickable="true">
         <TextView
             android:text="@string/start_time"
             android:layout_width="match_parent"
@@ -49,11 +45,9 @@
 
     <LinearLayout
         android:id="@+id/end_time_row"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/Setting"
         android:orientation="vertical"
-        android:clickable="true"
-        android:background="?android:attr/selectableItemBackground">
+        android:clickable="true">
         <TextView
             android:text="@string/end_time"
             android:layout_width="match_parent"
@@ -67,11 +61,9 @@
 
     <LinearLayout
         android:id="@+id/vibrate_row"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/Setting"
         android:orientation="horizontal"
-        android:clickable="true"
-        android:background="?android:attr/selectableItemBackground">
+        android:clickable="true">
         <TextView
             android:text="@string/vibrate"
             android:layout_width="0dp"
