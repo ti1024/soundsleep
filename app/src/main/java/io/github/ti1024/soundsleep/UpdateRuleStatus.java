@@ -72,7 +72,7 @@ public class UpdateRuleStatus extends BroadcastReceiver {
         audioManager.setRingerMode(rule.getRuleRingerMode());
         rule.active = true;
         rule.Save(context);
-        Toast.makeText(context, "Sound Sleep rule has been activated.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, R.string.rule_activated, Toast.LENGTH_SHORT).show();
     }
 
     private static void deactivateRule(Context context, Rule rule) {
@@ -83,6 +83,6 @@ public class UpdateRuleStatus extends BroadcastReceiver {
             audioManager.setRingerMode(rule.oldRingerMode);
         rule.active = false;
         rule.Save(context);
-        Toast.makeText(context, "Sound Sleep rule has been deactivated.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, R.string.rule_deactivated, Toast.LENGTH_SHORT).show();
     }
 }

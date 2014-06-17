@@ -59,7 +59,7 @@ public class RuleActivity extends Activity {
                 Rule rule = Rule.Load(RuleActivity.this);
                 boolean twentyFourHours = android.text.format.DateFormat.is24HourFormat(RuleActivity.this);
                 TimePickerDialog dialog = new TimePickerDialog(RuleActivity.this, callback, rule.startSerial / 60, rule.startSerial % 60, twentyFourHours);
-                dialog.setTitle(R.string.set_start_time);
+                dialog.setTitle(R.string.start_time);
                 dialog.show();
             }
         });
@@ -80,7 +80,7 @@ public class RuleActivity extends Activity {
                 Rule rule = Rule.Load(RuleActivity.this);
                 boolean twentyFourHours = android.text.format.DateFormat.is24HourFormat(RuleActivity.this);
                 TimePickerDialog dialog = new TimePickerDialog(RuleActivity.this, callback, rule.endSerial / 60, rule.endSerial % 60, twentyFourHours);
-                dialog.setTitle(R.string.set_end_time);
+                dialog.setTitle(R.string.end_time);
                 dialog.show();
             }
         });

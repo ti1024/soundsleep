@@ -5,8 +5,8 @@
     <string name="start_time">Start Time</string>
     <string name="end_time">End Time</string>
     <string name="vibrate">Vibrate</string>
-    <string name="set_start_time">Set Start Time</string>
-    <string name="set_end_time">Set End Time</string>
     <string name="rule_enabled">Enabled</string>
+    <string name="rule_activated">Sound Sleep rule has been activated.</string>
+    <string name="rule_deactivated">Sound Sleep rule has been deactivated.</string>
 
 </resources>
