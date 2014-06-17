@@ -13,6 +13,12 @@ import android.widget.Toast;
 public class UpdateRuleStatus extends BroadcastReceiver {
     private static final String TAG = "UpdateRuleStatus";
 
+    // Keep in mind: Keep the work of this function minimal!
+    // This broadcast receiver can be called very often even when the user is not interacting
+    // with our app.  Namely, if the device is configured to use the date and time from
+    // the network (android.provider.Settings.Global.AUTO_TIME), TIME_SET broadcast is sent
+    // approximately once per minute, at least in the case of my Nexus 5.
+    // This is not just me; see also http://stackoverflow.com/q/16684132.
     public static void updateRuleStatus(Context context, Rule rule) {
         if (rule.enabled) {
             Time now = new Time();
