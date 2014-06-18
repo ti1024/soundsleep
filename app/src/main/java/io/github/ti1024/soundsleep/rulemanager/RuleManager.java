@@ -1,8 +1,7 @@
-package io.github.ti1024.soundsleep;
+package io.github.ti1024.soundsleep.rulemanager;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +12,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.Time;
 import android.widget.Toast;
 
+import io.github.ti1024.soundsleep.R;
+
 public class RuleManager {
+
     public static final String ACTION_RULE_STATUS_CHANGED = "io.github.ti1024.soundsleep.RULE_STATUS_CHANGED";
 
     public static void setRuleEnabled(Context context, boolean enabled) {
@@ -70,7 +72,7 @@ public class RuleManager {
     // the network (android.provider.Settings.Global.AUTO_TIME), TIME_SET broadcast is sent
     // approximately once per minute, at least in the case of my Nexus 5.
     // This is not just me; see also http://stackoverflow.com/q/16684132.
-    private static void updateRuleStatus(Context context, Rule rule) {
+    static void updateRuleStatus(Context context, Rule rule) {
         if (rule.enabled) {
             Time now = new Time();
             now.setToNow();
@@ -89,9 +91,10 @@ public class RuleManager {
             nextUpdate.minute = nextUpdateSerial % 60;
             nextUpdate.second = 0;
             long nextUpdateMillis = nextUpdate.toMillis(true); // ignoreDst=true means "Do not trust isDst field"
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            Intent nextIntent = new Intent(context, UpdateRuleStatus.class);
-            PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, nextIntent, 0);
+            Context applicationContext = context.getApplicationContext();
+            AlarmManager alarmManager = (AlarmManager) applicationContext.getSystemService(Context.ALARM_SERVICE);
+            Intent nextIntent = new Intent(applicationContext, UpdateRuleStatus.class);
+            PendingIntent alarmIntent = PendingIntent.getBroadcast(applicationContext, 0, nextIntent, 0);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP, nextUpdateMillis, alarmIntent);
             else
@@ -125,11 +128,4 @@ public class RuleManager {
         Toast.makeText(context, toastResId, Toast.LENGTH_SHORT).show();
     }
 
-    public static class UpdateRuleStatus extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Rule rule = Rule.Load(context);
-            updateRuleStatus(context, rule);
-        }
-    }
 }

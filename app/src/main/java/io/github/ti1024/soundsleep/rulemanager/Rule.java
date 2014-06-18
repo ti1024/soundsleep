@@ -1,16 +1,16 @@
-package io.github.ti1024.soundsleep;
+package io.github.ti1024.soundsleep.rulemanager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 
-public class Rule {
-    public boolean enabled;
-    public int startSerial;
-    public int endSerial;
-    public boolean vibrate;
-    public boolean active;
-    public int oldRingerMode;
+public final class Rule {
+    boolean enabled;
+    int startSerial;
+    int endSerial;
+    boolean vibrate;
+    boolean active;
+    int oldRingerMode;
 
     private static final String PREFERENCES_FILE_NAME = "Rule";
     private static final String ENABLED_PREFERENCES_KEY = "Enabled";
@@ -19,6 +19,32 @@ public class Rule {
     private static final String VIBRATE_PREFERENCES_KEY = "Vibrate";
     private static final String ACTIVE_PREFERENCES_KEY = "Active";
     private static final String OLD_RINGER_MODE_PREFERENCES_KEY = "OldRingerMode";
+
+    private Rule() { }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public int getStartSerial() {
+        return startSerial;
+    }
+
+    public int getEndSerial() {
+        return endSerial;
+    }
+
+    public boolean getVibrate() {
+        return vibrate;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public int getOldRingerMode() {
+        return oldRingerMode;
+    }
 
     /**
      * <p>Saves this rule into a preferences file.</p>

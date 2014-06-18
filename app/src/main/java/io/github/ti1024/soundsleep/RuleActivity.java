@@ -17,6 +17,9 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import io.github.ti1024.soundsleep.rulemanager.Rule;
+import io.github.ti1024.soundsleep.rulemanager.RuleManager;
+
 public class RuleActivity extends Activity {
 
     private BroadcastReceiver ruleStatusChangedReceiver = null;
@@ -34,58 +37,64 @@ public class RuleActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rule);
         Rule rule = Rule.Load(this);
-        final CheckBox enabledCheckBox = (CheckBox) findViewById(R.id.rule_enabled);
-        enabledCheckBox.setChecked(rule.enabled);
+        CheckBox enabledCheckBox = (CheckBox) findViewById(R.id.rule_enabled);
+        enabledCheckBox.setChecked(rule.isEnabled());
         findViewById(R.id.rule_enabled_row).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                CheckBox enabledCheckBox = (CheckBox) findViewById(R.id.rule_enabled);
                 enabledCheckBox.toggle();
-                RuleManager.setRuleEnabled(RuleActivity.this, enabledCheckBox.isChecked());
+                RuleManager.setRuleEnabled(view.getContext(), enabledCheckBox.isChecked());
             }
         });
-        final TextView startTimeText = (TextView) findViewById(R.id.start_time);
         findViewById(R.id.start_time_row).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 TimePickerDialog.OnTimeSetListener callback = new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                        RuleManager.setRuleStartSerial(RuleActivity.this, hour * 60 + minute);
+                        RuleManager.setRuleStartSerial(timePicker.getContext(), hour * 60 + minute);
+                        TextView startTimeText = (TextView) findViewById(R.id.start_time);
                         startTimeText.setText(formatTime(hour, minute));
                     }
                 };
-                Rule rule = Rule.Load(RuleActivity.this);
-                boolean twentyFourHours = android.text.format.DateFormat.is24HourFormat(RuleActivity.this);
-                TimePickerDialog dialog = new TimePickerDialog(RuleActivity.this, callback, rule.startSerial / 60, rule.startSerial % 60, twentyFourHours);
+                Context context = view.getContext();
+                Rule rule = Rule.Load(context);
+                int startSerial = rule.getStartSerial();
+                boolean twentyFourHours = android.text.format.DateFormat.is24HourFormat(context);
+                TimePickerDialog dialog = new TimePickerDialog(context, callback, startSerial / 60, startSerial % 60, twentyFourHours);
                 dialog.setTitle(R.string.start_time);
                 dialog.show();
             }
         });
-        final TextView endTimeText = (TextView) findViewById(R.id.end_time);
         findViewById(R.id.end_time_row).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 TimePickerDialog.OnTimeSetListener callback = new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                        RuleManager.setRuleEndSerial(RuleActivity.this, hour * 60 + minute);
+                        RuleManager.setRuleEndSerial(timePicker.getContext(), hour * 60 + minute);
+                        TextView endTimeText = (TextView) findViewById(R.id.end_time);
                         endTimeText.setText(formatTime(hour, minute));
                     }
                 };
-                Rule rule = Rule.Load(RuleActivity.this);
-                boolean twentyFourHours = android.text.format.DateFormat.is24HourFormat(RuleActivity.this);
-                TimePickerDialog dialog = new TimePickerDialog(RuleActivity.this, callback, rule.endSerial / 60, rule.endSerial % 60, twentyFourHours);
+                Context context = view.getContext();
+                Rule rule = Rule.Load(context);
+                int endSerial = rule.getEndSerial();
+                boolean twentyFourHours = android.text.format.DateFormat.is24HourFormat(context);
+                TimePickerDialog dialog = new TimePickerDialog(context, callback, endSerial / 60, endSerial % 60, twentyFourHours);
                 dialog.setTitle(R.string.end_time);
                 dialog.show();
             }
         });
-        final CheckBox vibrateCheckBox = (CheckBox) findViewById(R.id.vibrate);
-        vibrateCheckBox.setChecked(rule.vibrate);
+        CheckBox vibrateCheckBox = (CheckBox) findViewById(R.id.vibrate);
+        vibrateCheckBox.setChecked(rule.getVibrate());
         findViewById(R.id.vibrate_row).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                CheckBox vibrateCheckBox = (CheckBox) findViewById(R.id.vibrate);
                 vibrateCheckBox.toggle();
-                RuleManager.setRuleVibrate(RuleActivity.this, vibrateCheckBox.isChecked());
+                RuleManager.setRuleVibrate(view.getContext(), vibrateCheckBox.isChecked());
             }
         });
     }
@@ -98,12 +107,14 @@ public class RuleActivity extends Activity {
         // It would be better to receive a broadcast for time format changes,
         // but I cannot find a suitable broadcast for this purpose.
         Rule rule = Rule.Load(this);
+        int startSerial = rule.getStartSerial();
         TextView startTimeText = (TextView) findViewById(R.id.start_time);
-        startTimeText.setText(formatTime(rule.startSerial / 60, rule.startSerial % 60));
+        startTimeText.setText(formatTime(startSerial / 60, startSerial % 60));
+        int endSerial = rule.getEndSerial();
         TextView endTimeText = (TextView) findViewById(R.id.end_time);
-        endTimeText.setText(formatTime(rule.endSerial / 60, rule.endSerial % 60));
-        final TextView statusText = (TextView) findViewById(R.id.status);
-        if (rule.active)
+        endTimeText.setText(formatTime(endSerial / 60, endSerial % 60));
+        TextView statusText = (TextView) findViewById(R.id.status);
+        if (rule.isActive())
             statusText.setText(R.string.rule_status_active);
         else
             statusText.setText(R.string.rule_status_inactive);
@@ -111,8 +122,9 @@ public class RuleActivity extends Activity {
         ruleStatusChangedReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Rule rule = Rule.Load(RuleActivity.this);
-                if (rule.active)
+                Rule rule = Rule.Load(context);
+                TextView statusText = (TextView) findViewById(R.id.status);
+                if (rule.isActive())
                     statusText.setText(R.string.rule_status_active);
                 else
                     statusText.setText(R.string.rule_status_inactive);

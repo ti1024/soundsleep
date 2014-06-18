@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
         <receiver
-            android:name=".RuleManager$UpdateRuleStatus"
+            android:name=".rulemanager.UpdateRuleStatus"
             android:exported="false"
             android:enabled="false">
             <intent-filter>
