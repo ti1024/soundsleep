@@ -7,7 +7,7 @@ import android.util.Log;
 
 public class UpdateRuleStatus extends BroadcastReceiver {
 
-    private static String TAG = "rulemanager.UpdateRuleStatus";
+    private static final String TAG = "rulemanager.UpdateRuleStatus";
 
     @Override
     public void onReceive(Context context, Intent intent) {
