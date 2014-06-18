@@ -2,7 +2,9 @@ package io.github.ti1024.soundsleep;
 
 import android.app.Activity;
 import android.app.TimePickerDialog;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.View;
@@ -38,7 +40,13 @@ public class RuleActivity extends Activity {
                 boolean isChecked = enabledCheckBox.isChecked();
                 Rule rule = Rule.Load(RuleActivity.this);
                 rule.enabled = isChecked;
-                rule.Save(RuleActivity.this);
+                Context context = RuleActivity.this;
+                rule.Save(context);
+                context.getPackageManager().setComponentEnabledSetting(
+                        new ComponentName(context, UpdateRuleStatus.class),
+                        isChecked ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
+                        PackageManager.DONT_KILL_APP
+                );
                 UpdateRuleStatus.updateRuleStatus(RuleActivity.this, rule);
             }
         });
