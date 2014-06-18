@@ -3,19 +3,66 @@ package io.github.ti1024.soundsleep;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Build;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.Time;
 import android.widget.Toast;
 
-public class UpdateRuleStatus extends BroadcastReceiver {
-    @SuppressWarnings("UnusedDeclaration")
-    private static final String TAG = "UpdateRuleStatus";
-
+public class RuleManager {
     public static final String ACTION_RULE_STATUS_CHANGED = "io.github.ti1024.soundsleep.RULE_STATUS_CHANGED";
+
+    public static void setRuleEnabled(Context context, boolean enabled) {
+        Rule rule = Rule.Load(context);
+        if (rule.enabled == enabled)
+            return;
+        rule.enabled = enabled;
+        rule.Save(context);
+        context.getPackageManager().setComponentEnabledSetting(
+                new ComponentName(context, UpdateRuleStatus.class),
+                enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
+                PackageManager.DONT_KILL_APP
+        );
+        updateRuleStatus(context, rule);
+    }
+
+    public static void setRuleStartSerial(Context context, int startSerial) {
+        Rule rule = Rule.Load(context);
+        if (rule.startSerial == startSerial)
+            return;
+        rule.startSerial = startSerial;
+        rule.Save(context);
+        updateRuleStatus(context, rule);
+    }
+
+    public static void setRuleEndSerial(Context context, int endSerial) {
+        Rule rule = Rule.Load(context);
+        if (rule.endSerial == endSerial)
+            return;
+        rule.endSerial = endSerial;
+        rule.Save(context);
+        updateRuleStatus(context, rule);
+    }
+
+    public static void setRuleVibrate(Context context, boolean vibrate) {
+        Rule rule = Rule.Load(context);
+        if (rule.vibrate == vibrate)
+            return;
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        boolean updateRingerMode = false;
+        if (rule.active) {
+            if (audioManager.getRingerMode() == rule.getRuleRingerMode())
+                updateRingerMode = true;
+        }
+        rule.vibrate = vibrate;
+        rule.Save(context);
+        if (updateRingerMode)
+            audioManager.setRingerMode(rule.getRuleRingerMode());
+    }
 
     // Keep in mind: Keep the work of this function minimal!
     // This broadcast receiver can be called very often even when the user is not interacting
@@ -23,7 +70,7 @@ public class UpdateRuleStatus extends BroadcastReceiver {
     // the network (android.provider.Settings.Global.AUTO_TIME), TIME_SET broadcast is sent
     // approximately once per minute, at least in the case of my Nexus 5.
     // This is not just me; see also http://stackoverflow.com/q/16684132.
-    public static void updateRuleStatus(Context context, Rule rule) {
+    private static void updateRuleStatus(Context context, Rule rule) {
         if (rule.enabled) {
             Time now = new Time();
             now.setToNow();
@@ -55,12 +102,6 @@ public class UpdateRuleStatus extends BroadcastReceiver {
         }
     }
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        Rule rule = Rule.Load(context);
-        updateRuleStatus(context, rule);
-    }
-
     private static void setRuleActive(Context context, Rule rule, boolean active) {
         if (rule.active == active)
             return;
@@ -82,5 +123,13 @@ public class UpdateRuleStatus extends BroadcastReceiver {
         Intent intent = new Intent(ACTION_RULE_STATUS_CHANGED);
         localBroadcastManager.sendBroadcast(intent);
         Toast.makeText(context, toastResId, Toast.LENGTH_SHORT).show();
+    }
+
+    public static class UpdateRuleStatus extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Rule rule = Rule.Load(context);
+            updateRuleStatus(context, rule);
+        }
     }
 }

@@ -3,12 +3,9 @@ package io.github.ti1024.soundsleep;
 import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
@@ -43,17 +40,7 @@ public class RuleActivity extends Activity {
             @Override
             public void onClick(View view) {
                 enabledCheckBox.toggle();
-                boolean isChecked = enabledCheckBox.isChecked();
-                Rule rule = Rule.Load(RuleActivity.this);
-                rule.enabled = isChecked;
-                Context context = RuleActivity.this;
-                rule.Save(context);
-                context.getPackageManager().setComponentEnabledSetting(
-                        new ComponentName(context, UpdateRuleStatus.class),
-                        isChecked ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
-                        PackageManager.DONT_KILL_APP
-                );
-                UpdateRuleStatus.updateRuleStatus(RuleActivity.this, rule);
+                RuleManager.setRuleEnabled(RuleActivity.this, enabledCheckBox.isChecked());
             }
         });
         final TextView startTimeText = (TextView) findViewById(R.id.start_time);
@@ -63,11 +50,8 @@ public class RuleActivity extends Activity {
                 TimePickerDialog.OnTimeSetListener callback = new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                        Rule rule = Rule.Load(RuleActivity.this);
-                        rule.startSerial = hour * 60 + minute;
+                        RuleManager.setRuleStartSerial(RuleActivity.this, hour * 60 + minute);
                         startTimeText.setText(formatTime(hour, minute));
-                        rule.Save(RuleActivity.this);
-                        UpdateRuleStatus.updateRuleStatus(RuleActivity.this, rule);
                     }
                 };
                 Rule rule = Rule.Load(RuleActivity.this);
@@ -84,11 +68,8 @@ public class RuleActivity extends Activity {
                 TimePickerDialog.OnTimeSetListener callback = new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                        Rule rule = Rule.Load(RuleActivity.this);
-                        rule.endSerial = hour * 60 + minute;
+                        RuleManager.setRuleEndSerial(RuleActivity.this, hour * 60 + minute);
                         endTimeText.setText(formatTime(hour, minute));
-                        rule.Save(RuleActivity.this);
-                        UpdateRuleStatus.updateRuleStatus(RuleActivity.this, rule);
                     }
                 };
                 Rule rule = Rule.Load(RuleActivity.this);
@@ -104,18 +85,7 @@ public class RuleActivity extends Activity {
             @Override
             public void onClick(View view) {
                 vibrateCheckBox.toggle();
-                boolean isChecked = vibrateCheckBox.isChecked();
-                Rule rule = Rule.Load(RuleActivity.this);
-                AudioManager audioManager = (AudioManager) RuleActivity.this.getSystemService(Context.AUDIO_SERVICE);
-                boolean updateRingerMode = false;
-                if (rule.active) {
-                    if (audioManager.getRingerMode() == rule.getRuleRingerMode())
-                        updateRingerMode = true;
-                }
-                rule.vibrate = isChecked;
-                rule.Save(RuleActivity.this);
-                if (updateRingerMode)
-                    audioManager.setRingerMode(rule.getRuleRingerMode());
+                RuleManager.setRuleVibrate(RuleActivity.this, vibrateCheckBox.isChecked());
             }
         });
     }
@@ -148,7 +118,7 @@ public class RuleActivity extends Activity {
                     statusText.setText(R.string.rule_status_inactive);
             }
         };
-        IntentFilter intentFilter = new IntentFilter(UpdateRuleStatus.ACTION_RULE_STATUS_CHANGED);
+        IntentFilter intentFilter = new IntentFilter(RuleManager.ACTION_RULE_STATUS_CHANGED);
         localBroadcastManager.registerReceiver(ruleStatusChangedReceiver, intentFilter);
     }
 
