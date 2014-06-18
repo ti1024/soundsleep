@@ -33,15 +33,8 @@ public class UpdateRuleStatus extends BroadcastReceiver {
                 active = nowSerial >= rule.startSerial && nowSerial < rule.endSerial;
             else
                 active = nowSerial >= rule.startSerial || nowSerial < rule.endSerial;
-            int nextUpdateSerial;
-            if (active) {
-                activateRule(context, rule);
-                nextUpdateSerial = rule.endSerial;
-            }
-            else {
-                deactivateRule(context, rule);
-                nextUpdateSerial = rule.startSerial;
-            }
+            setRuleActive(context, rule, active);
+            int nextUpdateSerial = active ? rule.endSerial : rule.startSerial;
             Time nextUpdate = new Time(now);
             if (nowSerial >= nextUpdateSerial)
                 nextUpdate.monthDay++;
@@ -58,7 +51,7 @@ public class UpdateRuleStatus extends BroadcastReceiver {
                 alarmManager.set(AlarmManager.RTC_WAKEUP, nextUpdateMillis, alarmIntent);
         }
         else {
-            deactivateRule(context, rule);
+            setRuleActive(context, rule, false);
         }
     }
 
@@ -68,31 +61,26 @@ public class UpdateRuleStatus extends BroadcastReceiver {
         updateRuleStatus(context, rule);
     }
 
-    private static void activateRule(Context context, Rule rule) {
-        if (rule.active)
+    private static void setRuleActive(Context context, Rule rule, boolean active) {
+        if (rule.active == active)
             return;
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        rule.oldRingerMode = audioManager.getRingerMode();
-        audioManager.setRingerMode(rule.getRuleRingerMode());
-        rule.active = true;
+        int toastResId;
+        if (active) {
+            rule.oldRingerMode = audioManager.getRingerMode();
+            audioManager.setRingerMode(rule.getRuleRingerMode());
+            toastResId = R.string.rule_activated;
+        }
+        else {
+            if (audioManager.getRingerMode() == rule.getRuleRingerMode())
+                audioManager.setRingerMode(rule.oldRingerMode);
+            toastResId = R.string.rule_deactivated;
+        }
+        rule.active = active;
         rule.Save(context);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
         Intent intent = new Intent(ACTION_RULE_STATUS_CHANGED);
         localBroadcastManager.sendBroadcast(intent);
-        Toast.makeText(context, R.string.rule_activated, Toast.LENGTH_SHORT).show();
-    }
-
-    private static void deactivateRule(Context context, Rule rule) {
-        if (!rule.active)
-            return;
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager.getRingerMode() == rule.getRuleRingerMode())
-            audioManager.setRingerMode(rule.oldRingerMode);
-        rule.active = false;
-        rule.Save(context);
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
-        Intent intent = new Intent(ACTION_RULE_STATUS_CHANGED);
-        localBroadcastManager.sendBroadcast(intent);
-        Toast.makeText(context, R.string.rule_deactivated, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, toastResId, Toast.LENGTH_SHORT).show();
     }
 }
