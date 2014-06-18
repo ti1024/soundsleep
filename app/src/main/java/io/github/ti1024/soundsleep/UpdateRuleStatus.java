@@ -7,12 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Build;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.Time;
 import android.widget.Toast;
 
 public class UpdateRuleStatus extends BroadcastReceiver {
     @SuppressWarnings("UnusedDeclaration")
     private static final String TAG = "UpdateRuleStatus";
+
+    public static final String ACTION_RULE_STATUS_CHANGED = "io.github.ti1024.soundsleep.RULE_STATUS_CHANGED";
 
     // Keep in mind: Keep the work of this function minimal!
     // This broadcast receiver can be called very often even when the user is not interacting
@@ -73,6 +76,9 @@ public class UpdateRuleStatus extends BroadcastReceiver {
         audioManager.setRingerMode(rule.getRuleRingerMode());
         rule.active = true;
         rule.Save(context);
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
+        Intent intent = new Intent(ACTION_RULE_STATUS_CHANGED);
+        localBroadcastManager.sendBroadcast(intent);
         Toast.makeText(context, R.string.rule_activated, Toast.LENGTH_SHORT).show();
     }
 
@@ -84,6 +90,9 @@ public class UpdateRuleStatus extends BroadcastReceiver {
             audioManager.setRingerMode(rule.oldRingerMode);
         rule.active = false;
         rule.Save(context);
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
+        Intent intent = new Intent(ACTION_RULE_STATUS_CHANGED);
+        localBroadcastManager.sendBroadcast(intent);
         Toast.makeText(context, R.string.rule_deactivated, Toast.LENGTH_SHORT).show();
     }
 }

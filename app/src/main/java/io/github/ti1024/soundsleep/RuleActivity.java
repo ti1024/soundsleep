@@ -2,11 +2,15 @@ package io.github.ti1024.soundsleep;
 
 import android.app.Activity;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
@@ -17,6 +21,8 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class RuleActivity extends Activity {
+
+    private BroadcastReceiver ruleStatusChangedReceiver = null;
 
     String formatTime(int hour, int minute) {
         // We use UTC instead of local timezone because local timezone may have DST
@@ -115,8 +121,8 @@ public class RuleActivity extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         // Set start time and end time fields here instead of onCreate
         // because time format may change while this activity is paused or stopped.
         // It would be better to receive a broadcast for time format changes,
@@ -126,5 +132,31 @@ public class RuleActivity extends Activity {
         startTimeText.setText(formatTime(rule.startSerial / 60, rule.startSerial % 60));
         TextView endTimeText = (TextView) findViewById(R.id.end_time);
         endTimeText.setText(formatTime(rule.endSerial / 60, rule.endSerial % 60));
+        final TextView statusText = (TextView) findViewById(R.id.status);
+        if (rule.active)
+            statusText.setText(R.string.rule_status_active);
+        else
+            statusText.setText(R.string.rule_status_inactive);
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        ruleStatusChangedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Rule rule = Rule.Load(RuleActivity.this);
+                if (rule.active)
+                    statusText.setText(R.string.rule_status_active);
+                else
+                    statusText.setText(R.string.rule_status_inactive);
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter(UpdateRuleStatus.ACTION_RULE_STATUS_CHANGED);
+        localBroadcastManager.registerReceiver(ruleStatusChangedReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onStop() {
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.unregisterReceiver(ruleStatusChangedReceiver);
+        ruleStatusChangedReceiver = null;
+        super.onStop();
     }
 }

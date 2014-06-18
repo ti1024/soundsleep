@@ -77,4 +77,8 @@
             android:clickable="false"/>
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/status"
+        style="@style/Setting"/>
+
 </LinearLayout>

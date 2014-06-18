@@ -8,5 +8,7 @@
     <string name="rule_enabled">Enabled</string>
     <string name="rule_activated">Sound Sleep rule has been activated.</string>
     <string name="rule_deactivated">Sound Sleep rule has been deactivated.</string>
+    <string name="rule_status_active">This rule is currently active.</string>
+    <string name="rule_status_inactive">This rule is currently inactive.</string>
 
 </resources>
