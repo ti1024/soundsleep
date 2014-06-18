@@ -11,6 +11,7 @@ import android.text.format.Time;
 import android.widget.Toast;
 
 public class UpdateRuleStatus extends BroadcastReceiver {
+    @SuppressWarnings("UnusedDeclaration")
     private static final String TAG = "UpdateRuleStatus";
 
     // Keep in mind: Keep the work of this function minimal!
