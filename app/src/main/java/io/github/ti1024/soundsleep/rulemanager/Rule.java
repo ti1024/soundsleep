@@ -59,7 +59,7 @@ public final class Rule {
      * as long as it belongs to the current application.
      * See http://stackoverflow.com/a/11567825.</p>
     */
-    public void Save(Context context) {
+    void Save(Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putBoolean(ENABLED_PREFERENCES_KEY, enabled);
