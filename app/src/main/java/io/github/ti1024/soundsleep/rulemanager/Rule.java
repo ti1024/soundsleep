@@ -6,6 +6,7 @@ import android.media.AudioManager;
 
 public final class Rule {
     boolean enabled;
+    final boolean[] days = new boolean[7];
     int startSerial;
     int endSerial;
     boolean vibrate;
@@ -14,6 +15,7 @@ public final class Rule {
 
     private static final String PREFERENCES_FILE_NAME = "Rule";
     private static final String ENABLED_PREFERENCES_KEY = "Enabled";
+    private static final String DAYS_PREFERENCES_KEY = "Days";
     private static final String START_SERIAL_PREFERENCES_KEY = "StartSerial";
     private static final String END_SERIAL_PREFERENCES_KEY = "EndSerial";
     private static final String VIBRATE_PREFERENCES_KEY = "Vibrate";
@@ -24,6 +26,10 @@ public final class Rule {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public boolean isDayContained(int day) {
+        return days[day];
     }
 
     public int getStartSerial() {
@@ -57,6 +63,10 @@ public final class Rule {
         SharedPreferences pref = context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putBoolean(ENABLED_PREFERENCES_KEY, enabled);
+        StringBuilder builder = new StringBuilder(7);
+        for (int day = 0; day < 7; day++)
+            builder.append(days[day] ? 'Y' : 'N');
+        editor.putString(DAYS_PREFERENCES_KEY, builder.toString());
         editor.putInt(START_SERIAL_PREFERENCES_KEY, startSerial);
         editor.putInt(END_SERIAL_PREFERENCES_KEY, endSerial);
         editor.putBoolean(VIBRATE_PREFERENCES_KEY, vibrate);
@@ -73,6 +83,9 @@ public final class Rule {
         SharedPreferences pref = context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
         Rule rule = new Rule();
         rule.enabled = pref.getBoolean(ENABLED_PREFERENCES_KEY, false);
+        String days = pref.getString(DAYS_PREFERENCES_KEY, "YYYYYYY");
+        for (int day = 0; day < 7; day++)
+            rule.days[day] = days.charAt(day) == 'Y';
         rule.startSerial = pref.getInt(START_SERIAL_PREFERENCES_KEY, 22 * 60);
         rule.endSerial = pref.getInt(END_SERIAL_PREFERENCES_KEY, 6 * 60);
         rule.vibrate = pref.getBoolean(VIBRATE_PREFERENCES_KEY, false);

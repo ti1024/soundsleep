@@ -28,6 +28,22 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/days_row"
+        style="@style/Setting"
+        android:orientation="vertical"
+        android:clickable="true">
+        <TextView
+            android:text="@string/days"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@android:style/TextAppearance.Medium"/>
+        <TextView
+            android:id="@+id/days"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/start_time_row"
         style="@style/Setting"
         android:orientation="vertical"

@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">Sound Sleep</string>
+    <string name="days">Days</string>
     <string name="start_time">Start Time</string>
     <string name="end_time">End Time</string>
     <string name="vibrate">Vibrate</string>
@@ -10,5 +11,7 @@
     <string name="rule_deactivated">Sound Sleep rule has been deactivated.</string>
     <string name="rule_status_active">This rule is currently active.</string>
     <string name="rule_status_inactive">This rule is currently inactive.</string>
+    <string name="everyday">Everyday</string>
+    <string name="days_except">Except %s</string>
 
 </resources>

@@ -12,6 +12,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.Time;
 import android.widget.Toast;
 
+import java.util.Arrays;
+
 import io.github.ti1024.soundsleep.R;
 
 public class RuleManager {
@@ -50,6 +52,17 @@ public class RuleManager {
         updateRuleStatus(context, rule);
     }
 
+    public static void setRuleDays(Context context, boolean[] days) {
+        if (days.length != 7)
+            throw new IllegalArgumentException("RuleManager.setRuleDays: days must consist of 7 elements");
+        Rule rule = Rule.Load(context);
+        if (Arrays.equals(rule.days, days))
+            return;
+        System.arraycopy(days, 0, rule.days, 0, 7);
+        rule.Save(context);
+        updateRuleStatus(context, rule);
+    }
+
     public static void setRuleVibrate(Context context, boolean vibrate) {
         Rule rule = Rule.Load(context);
         if (rule.vibrate == vibrate)
@@ -78,10 +91,18 @@ public class RuleManager {
             now.setToNow();
             int nowSerial = now.hour * 60 + now.minute;
             boolean active;
-            if (rule.startSerial <= rule.endSerial)
-                active = nowSerial >= rule.startSerial && nowSerial < rule.endSerial;
-            else
-                active = nowSerial >= rule.startSerial || nowSerial < rule.endSerial;
+            if (rule.startSerial <= rule.endSerial) {
+                active = nowSerial >= rule.startSerial && nowSerial < rule.endSerial &&
+                        rule.days[now.weekDay];
+            }
+            else {
+                if (nowSerial >= rule.startSerial)
+                    active = rule.days[now.weekDay];
+                else if (nowSerial < rule.endSerial)
+                    active = rule.days[(now.weekDay + 6) % 7];
+                else
+                    active = false;
+            }
             setRuleActive(context, rule, active);
             int nextUpdateSerial = active ? rule.endSerial : rule.startSerial;
             Time nextUpdate = new Time(now);
