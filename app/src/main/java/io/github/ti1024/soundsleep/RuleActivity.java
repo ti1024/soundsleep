@@ -57,7 +57,7 @@ public class RuleActivity extends Activity {
                         first = false;
                     else
                         builder.append(", ");
-                    builder.append(dayFormat.format(new Date((day + 3) * 86400000)));
+                    builder.append(formatDay(dayFormat, day));
                 }
             }
             return builder.toString();
@@ -71,7 +71,7 @@ public class RuleActivity extends Activity {
                         first = false;
                     else
                         builder.append(", ");
-                    builder.append(dayFormat.format(new Date((day + 3) * 86400000)));
+                    builder.append(formatDay(dayFormat, day));
                 }
             }
             return getString(R.string.days_except, builder.toString());
